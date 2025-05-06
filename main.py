@@ -27,13 +27,13 @@ class NumberGuessApp(ctk.CTk):
         menu_bar = Menu(self)
 
         game_menu = Menu(menu_bar, tearoff=0)
-        game_menu.add_command(label="Neues Spiel")
+        game_menu.add_command(label="Neues Spiel", command = self.reset_game)
         game_menu.add_separator()
         game_menu.add_command(label="Beenden", command=self.quit)
         menu_bar.add_cascade(label="Spiel", menu=game_menu)
 
         help_menu = Menu(menu_bar, tearoff=0)
-        help_menu.add_command(label="Über")
+        help_menu.add_command(label="So wird gespielt", command=self.show_info)
         menu_bar.add_cascade(label="Hilfe", menu=help_menu)
 
         self.config(menu=menu_bar)
@@ -54,7 +54,7 @@ class NumberGuessApp(ctk.CTk):
         self.result_label = ctk.CTkLabel(self, text="")
         self.result_label.grid(row=3, column=0, columnspan=2, pady=5)
 
-        self.button = ctk.CTkButton(self, text="Raten")
+        self.button = ctk.CTkButton(self, text="Raten", command=self.check_guess)
         self.button.grid(row=4, column=0, columnspan=2, pady=10, padx=10, sticky="nsew")
 
 
@@ -64,10 +64,35 @@ class NumberGuessApp(ctk.CTk):
         self.response = self.msg.get()
 
         if self.response == "Ja":
-            pass
+            self.reset_game()
 
         elif self.response == "Nein":
             self.quit()
+
+    def check_guess(self):
+        try:
+            self.guess = int(self.entry.get())
+            if self.guess < 0 or self.guess > 100:
+                self.result_label.configure(text="Bitte gib eine Zahl von 0 bis 100 ein!")
+            elif self.guess < self.random_number:
+                self.result_label.configure(text="Zahl ist zu klein!")
+            elif self.guess > self.random_number:
+                self.result_label.configure(text="Zahl ist zu groß!")
+            else:
+                self.result_label.configure(text="Richtig geraten!")
+                self.ask_player_new_game()
+        except ValueError:
+            self.result_label.configure(text="Bitte gib eine gültige Zahl ein!")
+
+    def reset_game(self):
+        self.random_number = random.randint(0,100)
+        self.entry.delete(0,"end")
+        self.result_label.configure(text="")
+
+    def show_info(self):
+        CTkMessagebox.CTkMessagebox(title="Hilfe", message="Der User soll eine Zahl von 0-100 raten."
+                                                           "Wenn die Zahl richtig eingegeben wurde, hat der User gewonnen."
+                                    ,corner_radius=3)
 
 
 
